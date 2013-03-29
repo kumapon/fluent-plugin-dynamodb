@@ -2,8 +2,8 @@
 module Fluent
 
 
-class DynamoDBOutput < Fluent::BufferedOutput
-  Fluent::Plugin.register_output('dynamodb', self)
+class DynamoDBPPCOutput < Fluent::BufferedOutput
+  Fluent::Plugin.register_output('dynamodbppc', self)
 
   include DetachMultiProcessMixin
 
@@ -65,17 +65,14 @@ class DynamoDBOutput < Fluent::BufferedOutput
   def valid_table(table_name)
     table = @dynamo_db.tables[table_name]
     table.load_schema
-    raise ConfigError, "Currently composite table is not supported." if table.has_range_key?
+    raise ConfigError, "Binary hash keys not supported" if table.range_key.type.to_s == 'binary'
+    raise ConfigError, "Database range key must be an Integer, it will hold a timestamp" if table.range_key.type.to_s != 'number'
     @hash_key_value = table.hash_key.name
+    @hash_range_value = table.range_key.name
   end
 
   def format(tag, time, record)
-    if !record.key?(@hash_key_value)
-      record[@hash_key_value] = UUIDTools::UUID.timestamp_create.to_s
-    end
-
-    record['time'] = @timef.format(time)
-    
+    record[@hash_range_value] = time
     record.to_msgpack
   end
 
@@ -83,6 +80,9 @@ class DynamoDBOutput < Fluent::BufferedOutput
     batch_size = 0
     batch_records = []
     chunk.msgpack_each {|record|
+      #Skip bad records
+      next unless (record[@hash_key_value]!= "" && record[@hash_key_value]!= nil)
+
       batch_records << record
       batch_size += record.to_json.length # FIXME: heuristic
       if batch_records.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
