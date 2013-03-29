@@ -13,7 +13,7 @@ First of all, you need to create a table in DynamoDB. It's easy to create via Ma
 
 Specify table name, hash attribute name and throughput as you like. fluent-plugin-dynamodb will load your table schema and write event-stream out to your table.
 
-*currently supports only table with a primary key which has a string hash-key. (hash and range key is not supported.)*
+*currently supports only table with a string as primary key and a numebr as range key. The range key is autimatically generated (and therefore overwitted) with the time of the event*
 
 ### Fluentd
 
@@ -36,7 +36,7 @@ Specify table name, hash attribute name and throughput as you like. fluent-plugi
 
 ###retrieving data
 
-fluent-plugin-dynamo will add **time** attribute and any other attributes of record automatically.
+fluent-plugin-dynamo will add **time** as your range key automatically.
 For example if you read apache's access log via fluentd, structure of the table will have been like this.
 
 <table>
@@ -53,7 +53,7 @@ For example if you read apache's access log via fluentd, structure of the table 
   </tr>
   <tr>
     <td>"a937f980-b304-11e1-bc96-c82a14fffef2"</td>
-    <td>"2012-06-10T05:26:46Z"</td>
+    <td>1364546803</td>
     <td>"192.168.0.3"</td>
     <td>"/index.html"</td>
     <td>"GET"</td>
@@ -64,7 +64,7 @@ For example if you read apache's access log via fluentd, structure of the table 
   </tr>
   <tr>
     <td>"a87fc51e-b308-11e1-ba0f-5855caf50759"</td>
-    <td>"2012-06-10T05:28:23Z"</td>
+    <td>1364633271</td>
     <td>"192.168.0.4"</td>
     <td>"/sample.html"</td>
     <td>"GET"</td>
@@ -75,9 +75,7 @@ For example if you read apache's access log via fluentd, structure of the table 
   </tr>
 </table>
 
-Item can be retrieved by the key, but fluent-plugin-dynamo uses UUID as a primary key.
-There is no simple way to retrieve logs you want.
-By the way, you can write scan-filter with AWS SDK like [this](https://gist.github.com/2906291), but Hive on EMR is the best practice I think.
+Item can be retrieved by the key.
 
 ###multiprocessing
 
