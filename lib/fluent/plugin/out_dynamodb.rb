@@ -125,10 +125,14 @@ module Fluent
       (hash[key] == nil || hash[key] == '')  ? "null" : hash[key]
     end
 
-    def build_session_object(record)
+  def build_session_object(record)
+      parsed_time = record["parsed_time"]
+      parsed_time ||= Time.now.to_s #Just in case
+      date_time = DateTime.parse(parsed_time)
+      date_time ||= DateTime.now #Just in case
       {
        'page_id' => default_null(record, 'landing_page_id').to_s,
-       'timestamp' => Time.now.to_i,
+       'timestamp' => date_time.to_time.to_i,
        'visit_id' => SecureRandom.uuid,
        'session_id' => default_null(record, 'session_id'),
        'merchant_id' => default_null(record, 'merchant_id'),
@@ -144,7 +148,7 @@ module Fluent
        'os' => default_null(record, 'os'),
        'is_mobile' => default_null(record, 'is_mobile'),
        'language' => default_null(record, 'language'),
-       'date' => Time.now.to_date.to_s,
+       'date' => date_time.to_date.to_s,
        'ip_address' => default_null(record, 'remote'),
        'visit_count' => default_null(record, 'session_count'),
        'days_since_last_visit' => (((date.to_date - (Time.at(record['last_visit'].to_i / 1000).to_date)).to_i) rescue "0")
