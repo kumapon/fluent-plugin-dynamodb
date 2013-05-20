@@ -86,6 +86,7 @@ module Fluent
       batch_size = 0
       batch_records = []
       chunk.msgpack_each {|record|
+        next if record["table"] == "conversion" #Skipping conversion records, those should be handled by another request
         if @dynamo_db_table.include?("number") #dirty dirty dirty, shame on me!
           unique_numbers = record['phone_numbers'].split(';').uniq rescue []
           unique_numbers.each do |number|
