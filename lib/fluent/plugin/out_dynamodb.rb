@@ -87,7 +87,7 @@ module Fluent
       batch_records = []
       chunk.msgpack_each {|record|
         if @dynamo_db_table.include?("number") #dirty dirty dirty, shame on me!
-          unique_numbers = record['phone_numbers'].split(';').uniq
+          unique_numbers = record['phone_numbers'].split(';').uniq rescue []
           unique_numbers.each do |number|
             #Skip bad records
             next unless (number != "" && number != nil)
