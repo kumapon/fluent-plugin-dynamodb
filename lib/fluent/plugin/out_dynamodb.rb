@@ -117,7 +117,7 @@ module Fluent
     end
 
     def batch_put_records(records)
-      @batch.put(@dynamo_db_table, records)
+      @batch.put(@dynamo_db_table, records.uniq)
       @batch.process!
     end
 
