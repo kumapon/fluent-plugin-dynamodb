@@ -88,7 +88,7 @@ module Fluent
       chunk.msgpack_each {|record|
         next if record["table"] == "conversion" #Skipping conversion records, those should be handled by another request
         if @dynamo_db_table.include?("number") #dirty dirty dirty, shame on me!
-          unique_numbers = record['phone_numbers'].split(';').uniq rescue []
+          unique_numbers = CGI.unescape(record['phone_numbers']).split(';').uniq rescue []
           unique_numbers.each do |number|
             #Skip bad records
             next unless (number != "" && number != nil)
