@@ -133,7 +133,6 @@ module Fluent
       {
        'page_id' => default_null(record, 'landing_page_id').to_s,
        'timestamp' => date_time.to_time.to_i,
-       'visit_id' => SecureRandom.uuid,
        'session_id' => default_null(record, 'session_id'),
        'merchant_id' => default_null(record, 'merchant_id'),
        'program_id' => default_null(record, 'program_id'),
