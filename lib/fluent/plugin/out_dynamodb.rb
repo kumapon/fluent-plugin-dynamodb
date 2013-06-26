@@ -122,9 +122,9 @@ module Fluent
     end
 
     def batch_put_records(numbers, sessions)
-      @batch_numbers.put(@dynamo_db_numbers, numbers.uniq)
+      @batch_numbers.put(@dynamo_db_numbers, numbers.uniq{|e| [e[:number], e[:timestamp]]})
       @batch_numbers.process!
-      @batch_sessions.put(@dynamo_db_sessions, sessions.uniq)
+      @batch_sessions.put(@dynamo_db_sessions, sessions.uniq{|e| [e['session_id'], e['timestamp']]})
       @batch_sessions.process!
     end
 
