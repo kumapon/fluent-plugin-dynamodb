@@ -156,7 +156,8 @@ module Fluent
        'user_agent' => default_null(record, 'user_agent'),
        'ip_address' => default_null(record, 'remote'),
        'visit_count' => default_null(record, 'session_count'),
-       'days_since_last_visit' => (((date.to_date - (Time.at(record['last_visit'].to_i / 1000).to_date)).to_i) rescue "0")
+       'days_since_last_visit' => (((date.to_date - (Time.at(record['last_visit'].to_i / 1000).to_date)).to_i) rescue "0"),
+       'adtype' => default_null(record, 'adtype')
       }
     end
 
